@@ -1,0 +1,77 @@
+###########################################################################################################
+##
+## Default values for the playbook execution
+##
+###########################################################################################################
+
+#by default, we will not wait for cloud-init to complete,
+# we will NOT block the playbook until cloud-init pass or fail or timeout(see below timeout values)
+#if you want to be sure, that playbook to wait->pass/fail based on cloud-init execution, turn this to true
+wait_for_cloud_init: False
+
+required_directories:
+- "{{ image_cache }}"
+- "{{ vm_disk_storage }}"
+- "{{ vm_disk_storage }}/{{ vm_name }}"
+
+#following are mandatory parms to be set at the start of playbook execution
+required_parameters:
+- vm_name
+- vcpus
+- memory_mb
+- disk_size
+- image_soruce
+#note: supplying cloud-init file is optional, the playbook would rander it's own file
+
+#following binaries are required on the controller machine
+required_binaries:
+- virt-install
+- virsh
+- virt-ls
+- virt-cat
+- qemu-img
+- cloud-localds
+
+# we will download images at the following location, use the directory with enough disk space
+image_cache: "/var/lib/vm_images"
+
+# Keep the disk of the VM at the following location, note that if the directory is deleted VM will be lost.
+vm_disk_storage: "/var/lib/libvert_vm"
+
+#by default using default network
+#supported values: default, bridged
+#NOTE: bridge mode assumes, your system is setup to run VM in bridged network. (playbook would not setup the network, if not already set results may varies)
+#playbook is tested for the most run on default network, so YMMV with bridged network. Consider using only default. This flag is prehaps only for internal use. 
+network_to_use: default
+
+
+#check for the result.json every 10 seconds 90 times
+cloud_init_result_max_retries: 90
+cloud_init_result_delay: 10
+
+#check every 10 seconds for 90 times for cloud-init completion
+cloud_init_complete_max_retries: 90
+cloud_init_complete_delay: 10
+
+#check ip address assignment
+ip_assignment_retry: 90
+ip_assignment_delay: 5
+wait_for_ip_assignment: True
+
+
+#following values will only be used if user did not supply the cloud init file as input
+# this is going to be one time initial password
+default_username: "technekey"
+default_password: "supersecret"
+
+
+#default timezone
+default_timezone: "US/Chicago"
+
+
+# log the IP of the created vm in a file
+log_ip: True
+ip_dir: "{{ playbook_dir }}/ip"
+
+#network_flag: "{%- if network_to_use  == 'default' -%} '--network network=default,model=virtio' {%- elif network_to_use == 'bridged'-%}'--bridge=br0' {%-else -%} 'error' {%-endif-%}"
+

@@ -1,0 +1,28 @@
+#cloud-config
+system_info:
+  default_user:
+    name: technekey
+    home: /home/technekey
+    sudo: ALL=(ALL) NOPASSWD:ALL
+password: technekey
+chpasswd: { expire: False }
+hostname: sample-vm
+
+#ssh_authorized_keys:
+#- ssh-ed25519 YOUR-KEY-HERE
+
+
+# configure sshd to allow users logging in using password 
+# rather than just keys
+ssh_pwauth: True
+
+
+
+# list of packages to install
+package_upgrade: true
+packages:
+- vim
+
+runcmd:
+- sudo systemctl enable iscsid
+- ip addr show $(ip route get 1.1.1.1  |grep -oP 'dev\s+\K[^ ]+')  |grep -oP '^\s+inet\s+\K[^/]+' |tee /tmp/my-ip
