@@ -7,6 +7,7 @@ Users may choose to use extra-vars or any other way to supply the input.(Eg. gro
 1. The playbook is suppose to be executed from the host machine. Meaning, ansible controller and the VM host should be same.
 2. Tthe playbook must be executed with ```-K``` flag unless passwordless sudo is available for current user.
 3. All the default values are present in host_vars/localhost/defaults.yml. Feel free to modify them if you understand what it is.
+4. The playbbok is tested mainly for default libvert network. using bridged network may have unknown results. 
 
 
 #### Syntax:
@@ -26,6 +27,7 @@ ansible-playbook  automated_vm_creation.yml -e vm_name=<vm-name> \
 ansible-playbook  automated_vm_creation.yml   -e vm_name=test-vm -e vcpus=4 -e memory_mb=4096 -e os_variant=ubuntu22.04 -e disk_size=100G -e image_source=/home/ps/vm_images/jammy-server-cloudimg-amd64.img -K
 ```
 
-
+#### General Note:
+Its highly recommanded to check the host_vars defaults to have a better understanding of the playbook internals. 
 
 
