@@ -27,14 +27,14 @@ virsh list
  Id   Name      State
 -------------------------
 ```
-####step-2: Run the playbook with ```playbook_action=create``` and ```vm_name=demo-vm``` to create the vm called ```demo-vm```.
+#### step-2: Run the playbook with ```playbook_action=create``` and ```vm_name=demo-vm``` to create the vm called ```demo-vm```.
 
 ```
 ansible-playbook  vm_manage.yml -e vm_name='demo-vm' -e playbook_action=create
 ```
 
 
-####Example output:
+#### Example output:
 
 ```
 ansible-playbook  vm_manage.yml -e vm_name='demo-vm' -e playbook_action=create
@@ -333,7 +333,7 @@ virsh list
  31   demo-vm   running
 ```
 
-#### Deleting the VM:
+#### Cleanup/Deleting the VM:
 
 ```
 ansible-playbook  vm_manage.yml -e vm_name='demo-vm' -e playbook_action=delete
@@ -342,7 +342,7 @@ ansible-playbook  vm_manage.yml -e vm_name='demo-vm' -e playbook_action=delete
 #### General Note:
 Its highly recommanded to check the host_vars defaults to have a better understanding of the playbook internals. There are many customization possible using the ```host_vars/localhost/defaults.yml``` file. 
 
-#### Some customizations:
+#### Some customizations advantage:
 
 If you want to do ```apt-update``` and install list of packages after the VM creation you can mention them as list in this file under ```package_list```. 
 Similarly if you wish to run some commands, after the VM is up, you can mention them under ```run_command``` or ```boot_command```.  
