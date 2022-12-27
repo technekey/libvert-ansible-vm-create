@@ -1,0 +1,47 @@
+#cloud-config
+
+system_info:
+  default_user:
+    name: "{{ default_username }}"                   #same user as of guest machine
+    home: "/home/{{ default_username }}"             # Same user as of guest machine
+    sudo: ALL=(ALL) NOPASSWD:ALL                     # Give sudo permission with no password prompt
+password: "{{ default_password }}"
+chpasswd: { expire: False }                           #This would cause the password to be reset during the first login
+hostname: "{{ vm_name }}"
+timezone: "{{ default_timezone }}"
+
+
+ssh_authorized_keys:
+- "{{ ssh_key }}"
+
+# configure sshd to allow users logging in using password
+# rather than just keys
+ssh_pwauth: {{ allow_ssh_pass|bool }}
+
+
+
+package_update: True
+package_upgrade: True
+
+# packages to install on master node# list of packages to install
+{% if package_list is defined and package_list|length > 0 %}
+packages:
+{% for tool in package_list |select() %}
+- {{ tool }}
+{% endfor%}
+{% endif %}
+
+# commands to run at the start of VM init, Eg: sysctl commands.
+{% if boot_commands is defined and boot_commands|length > 0 %}
+bootcmd:
+{% for command in boot_commands |select() %}
+- {{ command }}
+{% endfor%}
+{% endif %}
+#commands to run at the end of VM init
+{% if run_commands is defined and run_commands|length > 0 %}
+runcmd:
+{% for command in run_commands |select() %}
+- {{ command }}
+{% endfor%}
+{% endif %}

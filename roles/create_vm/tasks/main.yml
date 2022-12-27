@@ -1,0 +1,16 @@
+---
+  - name: "Download Image and resize the image"
+    include_role:
+      name: image-download
+
+  - name: "Starting cloud-config image buildup"
+    include_role:
+      name: cloud-config-creation
+
+  - name: "Starting the virt-install"
+    include_role:
+      name: virt-install
+
+  - name: "Check for cloud-init completion for {{ vm_name }}"
+    include_role:
+      name: cloud_init_check

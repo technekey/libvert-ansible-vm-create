@@ -1,0 +1,33 @@
+---
+# tasks file for image-download
+  - name: "Download the image from remote location"
+    image_download:
+      url:  "{{ image_source }}"
+      download_location: "{{ download_location }}"
+    register: image_data
+
+  - name: "Set Image file name"
+    set_fact:
+      image_name: "{{ download_location.rstrip('/') }}/{{ ( (image_data.stdout |regex_replace('.*filename=(.*)','\\1')).lstrip('/'))|basename}}"
+ 
+  - name: "Get the format of the downloaded image"
+    ansible.builtin.shell : qemu-img info "{{ image_name }}"
+    register: qemu_image_stats
+
+  
+  - name: "Get the format of the downloaded image"
+    set_fact:
+      downloaded_image_format: "{{ qemu_image_stats.stdout_lines |regex_search('file format. ([0-9a-zA-Z]+)','\\1') | first}}"
+
+  - name: "Set the qcow2 file name"
+    set_fact:
+      image_qcow: "{{ vm_disk_location.rstrip('/') }}/{{ vm_name }}/{{ ( image_name|basename|splitext)[0] }}_{{ vm_name }}.qcow2"
+      image_qcow_seed: "{{ vm_disk_location.rstrip('/') }}/{{ vm_name }}/{{ (image_name|basename|splitext)[0] }}_seed.iso"
+
+  - name: "Convert the image to qcow2"
+    ansible.builtin.shell: "qemu-img convert  -f {{ downloaded_image_format }}  -O qcow2 {{image_name}} {{ image_qcow }}"
+    register: image_convertion_stats
+
+  - name: "Resize the disk {{ image_name }}"
+    ansible.builtin.shell: "qemu-img resize {{ image_qcow }} {{ disk_size }}"
+

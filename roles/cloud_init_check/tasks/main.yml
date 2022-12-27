@@ -46,20 +46,44 @@
     ignore_errors: yes
     when: wait_for_ip_assignment |bool
 
-  - name: "Ensure directory to write ip address of the VM is present"
-    file:
-      path: "{{ ip_dir }}"
-      state: directory
-    when: log_ip |bool
+  - name: "Assert that IP address is available for the vm({{vm_name}})"
+    assert:
+      that: vm_ip.stdout |regex_search('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+')
+      fail_msg: "Unable to get the IP address of VM={{vm_name}}. Exiting"
+      success_msg: "IP Address is available for the VM={{vm_name}}"
+
+  - name: "Remove the old host entry"
+    lineinfile:
+      path: /etc/hosts
+      state: absent
+      regexp: ".*{{ vm_name }}.*"
+    when: refresh_localhost_hosts
+
+  - name: "Add IP address of all hosts to all hosts"
+    lineinfile:
+      dest: /etc/hosts
+      line: "{{ vm_ip.stdout |regex_search('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }} {{ vm_name }} #added automatically by ha-kubernetes-cluster-technekey"
+      state: present
+      insertafter: EOF
+    when: refresh_localhost_hosts
+
+  - name: "Remove the old host entry"
+    lineinfile:
+      path: /etc/hosts
+      state: absent
+      regexp: ".*{{ vm_name }}.*"
+    when: refresh_localhost_hosts
+
+  - name: "Add IP address of all hosts to all hosts"
+    lineinfile:
+      dest: /etc/hosts
+      line: "{{ vm_ip.stdout |regex_search('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }} {{ vm_name }}"
+      state: present
+      insertafter: EOF
+    when: refresh_localhost_hosts
 
   - name: "Show VM info"
     debug:
       msg:
-      - "{{ vm_info |default('unavailable')}}"
+      - "{{ vm_info[vm_name] |default({})}}"
       - "{{ vm_ip.stdout|regex_search('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+')|default({})}}"
-
-  - name: "Write the VM Info to a file {{ ip_dir }}"
-    template: 
-      src: vm_info.j2 
-      dest: "{{ ip_dir }}/{{ vm_name }}.log"
-    when: log_ip |bool

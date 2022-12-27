@@ -1,0 +1,51 @@
+---
+# tasks file for delete_vm
+
+  - name: "List the Existing KVM present on the host machine"
+    community.libvirt.virt:
+      command: list_vms
+    register: all_vms
+
+  - name: "Display the info of the VM"
+    community.libvirt.virt:
+      command: "info"
+      name: "{{ vm_name }}"
+
+  - name: "Get the VM disk info"
+    shell: "virsh domblklist  {{ vm_name }}  --details |awk '$2==\"disk\"{print $NF}'"
+    register: vm_disk_loc
+    when: vm_name in all_vms.list_vms
+    ignore_errors: true
+
+  - name: "Destroy the VM({{ vm_name }})"
+    community.libvirt.virt:
+      command: "destroy"
+      name: "{{ vm_name }}"
+    when: vm_name in  all_vms.list_vms
+    register: vm_destroy
+
+  - name: "Check the disk file status"
+    stat:
+      path: "{{ vm_disk_loc.stdout }}"
+    register: disk_file_loc
+    when: vm_name in  all_vms.list_vms
+
+  - name: "Delete the VM"
+    community.libvirt.virt:
+      command: "undefine"
+      name: "{{ vm_name }}"
+    when: vm_name in all_vms.list_vms
+    register: vm_undefine
+
+  - name: "Delete the disk of the VM"
+    ansible.builtin.file:
+     path: "{{ vm_disk_loc.stdout }}"
+     state: absent
+    #when: disk_file_loc.stat.exists|default(False) and vm_name in all_vms.list_vms
+    when: false
+
+  - name: "Delete the seed image"
+    ansible.builtin.file:
+      path: "{{ vm_disk_location }}/{{ vm_name }}"
+      state: absent
+

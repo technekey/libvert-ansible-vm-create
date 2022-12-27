@@ -1,2 +1,21 @@
 ---
 # vars file for cloud_init_check
+
+#This enables playbook to wait until cloud-init finish setting up the VM
+#This is good for error proofing
+wait_for_cloud_init: true
+
+# Polling parameters
+cloud_init_result_max_retries: 90
+cloud_init_result_delay: 10
+cloud_init_complete_max_retries: 90
+cloud_init_complete_delay: 10
+
+# These vars are to poll the IP assignment to the new VM
+ip_assignment_retry: 90
+ip_assignment_delay: 5
+wait_for_ip_assignment: True
+
+# This would made entry in /etc/hosts of the host machine about the new VM
+refresh_localhost_hosts: True
+

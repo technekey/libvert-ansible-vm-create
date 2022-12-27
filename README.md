@@ -432,5 +432,3 @@ run_commands:
 - date
 - touch /tmp/end
 ```
-
-

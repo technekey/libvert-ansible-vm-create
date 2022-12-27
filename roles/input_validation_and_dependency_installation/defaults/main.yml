@@ -1,0 +1,39 @@
+---
+# defaults file for input_validation_and_dependency_installation
+
+required_parameters:
+- vm_name
+- vcpus
+- memory_mb
+- disk_size
+- image_soruce
+
+
+required_binaries:
+- virt-install
+- virsh
+- virt-ls
+- virt-cat
+- qemu-img
+- cloud-localds
+
+
+required_vars:
+- vm_name
+- download_location
+- vm_disk_location
+- allow_ssh_pass
+- default_username
+- default_password
+- memory_mb
+- vcpus
+- disk_size
+- image_source
+- os_variant
+- ssh_key
+- required_directories
+
+required_directories:
+- "{{ download_location }}"
+- "{{ vm_disk_location }}"
+- "{{ vm_disk_location }}/{{ vm_name }}"

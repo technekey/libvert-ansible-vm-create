@@ -1,77 +1,84 @@
-###########################################################################################################
-##
-## Default values for the playbook execution
-##
-###########################################################################################################
+#######################################################
+# This file contains, some of the default values
+# user should change as per their need
+#######################################################
 
-#by default, we will not wait for cloud-init to complete,
-# we will NOT block the playbook until cloud-init pass or fail or timeout(see below timeout values)
-#if you want to be sure, that playbook to wait->pass/fail based on cloud-init execution, turn this to true
-wait_for_cloud_init: False
+######################################################################################
+# The default action of the playbook is to create the VM, if you want to delete vm
+# set this playbook_action=delete via extra var
+######################################################################################
+playbook_action: create
 
-required_directories:
-- "{{ image_cache }}"
-- "{{ vm_disk_storage }}"
-- "{{ vm_disk_storage }}/{{ vm_name }}"
+######################################################################################
+# STRING: location at which ISO will be downloaded if URL is provided as image_source
+#######################################################################################
+download_location: /home/ps/vm_images
 
-#following are mandatory parms to be set at the start of playbook execution
-required_parameters:
-- vm_name
-- vcpus
-- memory_mb
-- disk_size
-- image_soruce
-#note: supplying cloud-init file is optional, the playbook would rander it's own file
-
-#following binaries are required on the controller machine
-required_binaries:
-- virt-install
-- virsh
-- virt-ls
-- virt-cat
-- qemu-img
-- cloud-localds
-
-# we will download images at the following location, use the directory with enough disk space
-image_cache: "/var/lib/vm_images"
-
-# Keep the disk of the VM at the following location, note that if the directory is deleted VM will be lost.
-vm_disk_storage: "/var/lib/libvert_vm"
-
-#by default using default network
-#supported values: default, bridged
-#NOTE: bridge mode assumes, your system is setup to run VM in bridged network. (playbook would not setup the network, if not already set results may varies)
-#playbook is tested for the most run on default network, so YMMV with bridged network. Consider using only default. This flag is prehaps only for internal use. 
-network_to_use: default
+#######################################################################################
+# STRING: location at which VM Virtual disk will be kept, location should have enough
+# space and any loss to the files in this dir, will cause VM corruption.
+########################################################################################
+vm_disk_location: /home/ps/vm_disks
 
 
-#check for the result.json every 10 seconds 90 times
-cloud_init_result_max_retries: 90
-cloud_init_result_delay: 10
+########################################################################################
+# STRING: default user and pass for the VM
+########################################################################################
+allow_ssh_pass: True  # If this is set to false, VM will not be accessible via user/pass
+default_username: technekey
+default_password: technekey
 
-#check every 10 seconds for 90 times for cloud-init completion
-cloud_init_complete_max_retries: 90
-cloud_init_complete_delay: 10
+########################################################################################
+# default sizing of VM, either change here or using extra-vars
+# INT: vcpus and memory_mb
+# STRING: disk_size, Must use suffix of unit. Eg: 120G
+########################################################################################
 
-#check ip address assignment
-ip_assignment_retry: 90
-ip_assignment_delay: 5
-wait_for_ip_assignment: True
-
-
-#following values will only be used if user did not supply the cloud init file as input
-# this is going to be one time initial password
-default_username: "technekey"
-default_password: "supersecret"
+memory_mb: 2048
+vcpus: 2
+disk_size: 40G
 
 
-#default timezone
-default_timezone: "US/Chicago"
+########################################################################################
+# STRING: Image location, could be a URL(https://.......) or a local path(/foo/bar/.....)
+########################################################################################
+image_source: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+
+#########################################################################################
+# STRING: value can be obtained by  'virt-install --osinfo list'
+#
+#########################################################################################
+os_variant: ubuntufocal
 
 
-# log the IP of the created vm in a file
-log_ip: True
-ip_dir: "{{ playbook_dir }}/ip"
+###########################################################################################
+# STRING: SSH public key to login to the VM
+###########################################################################################
+# FILL THIS BEFORE USING THE PLAYBOOK
+ssh_key: ""
 
-#network_flag: "{%- if network_to_use  == 'default' -%} '--network network=default,model=virtio' {%- elif network_to_use == 'bridged'-%}'--bridge=br0' {%-else -%} 'error' {%-endif-%}"
+###########################################################################################
+# LIST: Tools you would want to install automatically after VM creation
+###########################################################################################
 
+package_list:
+- vim
+- build-essential
+- python3-pip
+
+
+##############################################################################################
+# List: Boot commands, the commands to be executed just after boot before anything else
+#
+##############################################################################################
+boot_commands:
+- date
+- touch /tmp/start
+
+##############################################################################################
+# LIST: Run commands, the commands to be executed just before the cloud-init finishes 
+#
+##############################################################################################
+run_commands:
+- date
+- touch /tmp/end

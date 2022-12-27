@@ -1,0 +1,4 @@
+---
+# vars file for cloud-config-creation
+template_file: config.j2
+default_timezone: "{{ lookup('file', '/etc/timezone') }}"

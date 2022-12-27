@@ -1,0 +1,30 @@
+---
+# tasks file for cloud-config-creation
+
+# 1. Create a temp file
+# 2. Template it with the data
+# 3. create a seed image
+# 4. delete the temp file
+ - name: "Create a temp cloud-init file"
+   tempfile:
+     state:  file
+     suffix: config
+   register: temp_config
+
+ - name: "Create a template to add the VM-NAME({{vm_name}}) to the temp cloud-init file"
+   copy:
+     content: "{{ lookup('template', template_file) }}"
+     dest:    "{{ temp_config.path }}"
+
+ - name: "Set cloud-config file name"
+   set_fact:
+     cloud_config_file: "{{ temp_config.path}}"
+
+ - name: "Create a seed image"
+   ansible.builtin.shell: "cloud-localds -v {{ image_qcow_seed }}  {{ cloud_config_file }}"
+
+ - name: "Cleanup the Default cloud-init file"
+   ansible.builtin.file:
+     path: "{{ temp_config.path }}"
+     state: absent
+   when:  temp_config.path is defined

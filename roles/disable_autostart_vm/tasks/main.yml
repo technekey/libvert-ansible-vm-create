@@ -1,7 +1,0 @@
----
-# tasks file for disable_autostart_vm
-- name: Set autostart disable for the VM
-  community.libvirt.virt:
-    name: "{{ vm_name }}"
-    autostart: no
-

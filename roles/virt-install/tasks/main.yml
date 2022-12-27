@@ -1,0 +1,20 @@
+---
+# tasks file for virt-install
+
+  - name: "Do the install for Default network"
+    ansible.builtin.shell: >
+      virt-install   --name "{{ vm_name }}"
+      --disk "'{{ image_qcow }}'",device=disk,bus=virtio
+      --disk "{{ image_qcow_seed }}",device=cdrom
+      --os-variant "{{ os_variant }}"
+      --virt-type kvm
+      --graphics none
+      --vcpus "{{vcpus}}"
+      --memory "{{ memory_mb }}"
+      --console pty,target_type=serial
+      --network network=default,model=virtio
+      --import
+      --noautoconsole
+    register: virt_install_output
+    ignore_errors: true
+

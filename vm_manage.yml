@@ -1,0 +1,19 @@
+- name: Deploy VM using Cloud-init 
+  hosts: localhost
+  gather_facts: yes
+  become: yes   
+  tasks:
+
+  - name: "Starting validation of mandatory variables and dependencies"
+    include_role:
+      name: input_validation_and_dependency_installation
+
+  - name: "Create a VM"
+    include_role:
+      name: create_vm
+    when: playbook_action == "create"
+
+  - name: "Delete the VM ({{ vm_name }})"
+    include_role:
+      name: delete_vm
+    when: playbook_action == "delete"
