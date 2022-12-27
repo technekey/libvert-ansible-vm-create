@@ -1,6 +1,6 @@
-This is a very simple playbook to create virtual machines using cloud-init files. 
+This is a very simple playbook to create virtual machines using ansible, libvert and cloud-init. The playbook would not only create the VM, but also do initial repeated steps a user would wish to automate, like `apt update`, `apt install` or running some commands after the VM is booted. This playbook provide an administrator ability to quickly spawn Virtual machines, with some a ready to use expereince. 
 
-
+# For more details, see this. I would love to further enhance this playbook or provide any assitance. Feel free to contact via https://technekey.com/contact/
 
 #### Note:
 1. The playbook is suppose to be executed from the host machine. Meaning, ansible controller. 
