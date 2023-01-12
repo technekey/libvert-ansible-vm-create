@@ -12,13 +12,13 @@ playbook_action: create
 ######################################################################################
 # STRING: location at which ISO will be downloaded if URL is provided as image_source
 #######################################################################################
-download_location: /home/ps/vm_images
+download_location: ~/vm_images
 
 #######################################################################################
 # STRING: location at which VM Virtual disk will be kept, location should have enough
 # space and any loss to the files in this dir, will cause VM corruption.
 ########################################################################################
-vm_disk_location: /home/ps/vm_disks
+vm_disk_location: ~/vm_disks
 
 
 ########################################################################################
@@ -42,6 +42,8 @@ disk_size: 40G
 ########################################################################################
 # STRING: Image location, could be a URL(https://.......) or a local path(/foo/bar/.....)
 ########################################################################################
+#If you need fedora images, get them from https://download.fedoraproject.org/pub/fedora/linux/releases/
+# make sure you use cloud image that supports cloud-init.
 image_source: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
 
 #########################################################################################
