@@ -33,7 +33,7 @@ default_password: technekey
 # INT: vcpus and memory_mb
 # STRING: disk_size, Must use suffix of unit. Eg: 120G
 ########################################################################################
-
+#for Fedora, you must use 2048Mb of RAM. 
 memory_mb: 2048
 vcpus: 2
 disk_size: 40G
@@ -67,6 +67,7 @@ package_list:
 - vim
 - build-essential
 - python3-pip
+- qemu-guest-agent # I do this to manage VM from the host. 
 
 
 ##############################################################################################
@@ -82,5 +83,7 @@ boot_commands:
 #
 ##############################################################################################
 run_commands:
-- date
-- touch /tmp/end
+- systemctl enable qemu-guest-agent #only if  qemu-guest-agent is installed
+- systemctl start qemu-guest-agent  #only if  qemu-guest-agent is installed
+- systemctl status qemu-guest-agent #only if  qemu-guest-agent is installed
+
