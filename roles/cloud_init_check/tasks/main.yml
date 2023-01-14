@@ -10,7 +10,7 @@
   - name: "Wait for cloud-init result file to get created"
     ansible.builtin.shell: "virt-ls -l  -d {{ vm_name }} /var/lib/cloud/data/ 2>/dev/null || :"
     register: cloud_init_result_file
-    until: cloud_init_result_file.stdout |regex_search('result.json')
+    until: cloud_init_result_file.stdout |regex_search('result.json|status.json')
     retries: "{{ cloud_init_result_max_retries }}"
     delay: "{{ cloud_init_result_delay }}"
     when: wait_for_cloud_init | bool
