@@ -18,7 +18,7 @@ download_location: ~/vm_images
 # STRING: location at which VM Virtual disk will be kept, location should have enough
 # space and any loss to the files in this dir, will cause VM corruption.
 ########################################################################################
-vm_disk_location: ~/vm_disks
+vm_disk_location: "/var/lib/libvirt/images"
 
 
 ########################################################################################

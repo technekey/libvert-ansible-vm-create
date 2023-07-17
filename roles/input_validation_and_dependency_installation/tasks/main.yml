@@ -31,6 +31,16 @@
     - qemu-kvm
     - cloud-image-utils
 
+  - name: "Sets default ACL for libvirt-qemu for {{ vm_disk_location }}"
+    ansible.posix.acl:
+      path: "{{ vm_disk_location}}"
+      entity: libvirt-qemu
+      etype: user
+      permissions: rx
+      default: true
+      state: present
+    when: download_location != "/var/lib/libvirt/images"
+
   - name: "Loading the path of all required binaries in the ansible host"
     ansible.builtin.shell: "which {{ item }} || :"
     register: bin_path

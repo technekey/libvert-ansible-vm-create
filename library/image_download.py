@@ -1,73 +1,50 @@
-#!/usr/bin/python3
-
-
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+#!/usr/bin/python
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import to_text
-
-from urllib.request import urlopen  
+import os
+import urllib.request
+import pathlib
+from urllib.request import urlopen
 from os.path import basename
-import logging
-import shutil
-from pathlib import Path
-import re
-logger = logging.getLogger(__name__)
 
+def expand_user(path):
+    return str(pathlib.Path(path).expanduser())
 
-def main():
+def download_file(url, download_location):
+    #file_name = os.path.basename(url)
+    #file_path = os.path.join(expand_user(download_location), file_name)
+    try:
+        os.makedirs(expand_user(download_location), exist_ok=True)
+        urllib.request.urlretrieve(url, file_path)
+        return True, file_path
+    except Exception as e:
+        return False, str(e)
+
+def run_module():
     module_args = dict(
         url=dict(type='str', required=True),
-        download_location=dict(type='str', required=True),
+        download_location=dict(type='path', required=True),
     )
-    
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=module_args)
+    url = module.params['url']
+    download_location = module.params['download_location']
+    response = urlopen(url)
+    file_name = os.path.basename(url)
+    file_path = os.path.join(expand_user(download_location),basename(response.url))
 
-    result = dict(
-        msg = '',
-        stdout = '',
-        stdout_lines = [],
-        stderr = '',
-        stderr_lines = [],
-        rc = 0,
-        failed = False,
-        changed=False
-    )
-    url =  module.params['url']
-    download_location =  module.params['download_location']
-
-    #if the url contains https* then assume the download location is remote
-    if re.search('^http', url):
-        try:
-            response = urlopen(url,timeout=10)
-            file_name = basename(response.url)
-        except Exception as e:
-            result['stderr'] = "Unable to determine the filename"
-            module.fail_json(msg=f"Failed to inspect the supplied remote URL, {to_text(e)}")
-
-        file_location = f"{download_location.rstrip('/')}/{file_name}"
-        if Path(file_location).is_file():
-            result['stdout'] = f"File is already present which is supposed to be downloaded from {url}, filename={file_name}"
-            module.exit_json(**result)
-        try:
-            with urlopen(url) as response, open(file_location, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)    
-        except Exception as e:
-            result['stderr'] = f"Unable to download {file_name} from the {url}"
-            module.fail_json(msg= f"{result['stderr']} {to_text(e)}")
-
-        result['stdout'] = f"Download completed,filename={file_name}"
-    else:
-        if Path(url).is_file():
-            result['stdout'] = f"File presence validation completed, filename={url}"
+    if os.path.exists(file_path):
+        module.exit_json(changed=True, file_path=file_path, stdout=file_path, msg=f'File({file_path}) already present in the system. Skipping download')
+    else:    
+        success, file_path = download_file(url, download_location)
+        if success:
+            module.exit_json(changed=True, file_path=file_path, stdout=file_path, msg=f'File({file_path}) downloaded successfully')
         else:
-            result['stderr'] = f"Unable to find file at supplied local location, filename={url}"
-            module.fail_json(msg = f"{result['stderr']}")
-    #if all goes well this exit will be called
-    module.exit_json(**result)
+            module.fail_json(msg=f'Unable to download file: {file_path}')
+
+def main():
+    run_module()
 
 if __name__ == '__main__':
+
     main()
+
+
